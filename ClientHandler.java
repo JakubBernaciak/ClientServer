@@ -21,6 +21,10 @@ public class ClientHandler extends Thread{
             try{
                 output.writeUTF("Enter notification message or exit to terminate conncetion:");
                 notification = input.readUTF();
+
+                if(notification.equals("")){
+                    continue;
+                }
                 
 
                 if(notification.equals("exit") || notification.equals("Exit")){
@@ -39,8 +43,13 @@ public class ClientHandler extends Thread{
                 output.writeUTF(notification);
 
             }
+            catch(EOFException e){
+                System.out.println("Concetion closed with "+this.socket);
+                break;
+            }
             catch(Exception i){
                 System.out.print(i);
+                break;
             }
         }
 
