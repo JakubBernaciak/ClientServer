@@ -12,20 +12,32 @@ public class ClientHandler extends Thread{
         this.output = output;
         this.socket = socket;
     }
-
+    private void sendMessage(int delay,String notification){
+        new Thread(()->{
+            try{
+                Thread.sleep(1000*delay);
+                System.out.println("Sending message "+ notification + " to "+ this.socket);
+                output.writeUTF(notification);
+            }
+            catch(IOException i){
+                i.printStackTrace();
+            }
+            catch(InterruptedException e){
+                e.printStackTrace();
+            }
+            
+        }).start();
+    }
     @Override
     public void run(){
         String notification;
         Integer definetlyNotTimeToWait;
         while(true){
             try{
-                output.writeUTF("Enter notification message or exit to terminate conncetion:");
                 notification = input.readUTF();
-
                 if(notification.equals("")){
                     continue;
                 }
-                
 
                 if(notification.equals("exit") || notification.equals("Exit")){
                     this.socket.close();
@@ -33,14 +45,12 @@ public class ClientHandler extends Thread{
                     break;
                 }
 
-                output.writeUTF("Enter delay: ");
                 definetlyNotTimeToWait = input.readInt();
 
                 if(definetlyNotTimeToWait == -1)
                     continue;
 
-                Thread.sleep(1000*definetlyNotTimeToWait);
-                output.writeUTF(notification);
+                sendMessage(definetlyNotTimeToWait , notification);
 
             }
             catch(EOFException e){

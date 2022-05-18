@@ -3,6 +3,25 @@ import java.net.*;
 import java.util.Scanner;
 
 public class Client{
+    private void getMessage(DataInputStream input,Socket socket){
+        new Thread(()->{
+            while(socket.isConnected()){
+                try{
+                    String received = input.readUTF();
+                    System.out.println("New notification: "+received);
+                }
+                catch(EOFException i){
+                    System.out.println("Server has been shut down");
+                    break;
+                }
+                catch(IOException i){
+                    i.printStackTrace();
+                    break;
+                }
+            }
+            
+        }).start();
+    }
     public static void main(String[] args){
         
         Scanner scanner = new Scanner(System.in);
@@ -22,9 +41,9 @@ public class Client{
             socket = new Socket(ip,5000);
             input = new DataInputStream(socket.getInputStream());
             output = new DataOutputStream(socket.getOutputStream());
-
+            new Client().getMessage(input,socket);
             while(true){
-                System.out.println(input.readUTF());
+                System.out.println("Enter notification message or exit to terminate conncetion:");
                 String notification = scanner.nextLine();
 
                 output.writeUTF(notification);
@@ -39,7 +58,7 @@ public class Client{
                     break;
                 }
 
-                System.out.println(input.readUTF());
+                System.out.println("Enter delay: ");
                 try{
                     Integer delay = Integer.parseInt(scanner.nextLine());
                     if(delay < 0){
@@ -56,10 +75,6 @@ public class Client{
                     output.writeInt(-1);
                     continue;
                 }
-                
-
-                String received = input.readUTF();
-                System.out.println(received);
             }
             scanner.close();
             input.close();
